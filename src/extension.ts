@@ -154,7 +154,7 @@ function getWebviewContent(
   context: vscode.ExtensionContext,
   graph: string
 ): string {
-  const htmlPath = path.join(context.extensionPath, "src", "diagram.html");
+  const htmlPath = path.join(context.extensionPath, "dist", "diagram.html");
   let htmlContent = fs.readFileSync(htmlPath, "utf8");
   htmlContent = htmlContent.replace(
     '<textarea id="code" rows="10" cols="50"></textarea>',
