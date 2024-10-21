@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Diagram</title>
+    <style>
+      body {
+        background: #f4f4f9;
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        color: #333;
+      }
+
+      #diagram svg {
+        width: 100%;
+        height: auto;
+      }
+      .mermaid {
+        font-size: 12px;
+      }
+
+      #code {
+        display: none;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      /* Light theme styles */
+      @media (prefers-color-scheme: light) {
+        body {
+          background: #f4f4f9;
+          color: #333;
+        }
+        #diagram {
+          border: 1px solid #ccc;
+          background: white;
+        }
+        button {
+          color: white;
+        }
+        #leftToRightBtn {
+          background-color: #4caf50;
+        }
+        #topToBottomBtn {
+          background-color: #008cba;
+        }
+      }
+
+      /* Dark theme styles */
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #1e1e1e;
+          color: #f4f4f9;
+        }
+        #diagram {
+          border: 1px solid #444;
+          background: #2e2e2e;
+        }
+        button {
+          color: white;
+        }
+        #leftToRightBtn {
+          background-color: #4caf50;
+        }
+        #topToBottomBtn {
+          background-color: #008cba;
+        }
+      }
+    </style>
+    <script src="https://bumbu.me/svg-pan-zoom/dist/svg-pan-zoom.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@8.11.0/dist/mermaid.min.js"></script>
+    <script>
+      const vscode = acquireVsCodeApi();
+      let isLoadedButtons = false;
+
+      const zoomSvg = () => {
+        let doPan = false;
+        let eventsHandler;
+        let panZoom;
+        let mousepos;
+
+        eventsHandler = {
+          haltEventListeners: ["mousedown", "mousemove", "mouseup"],
+
+          mouseDownHandler: function (ev) {
+            if (event.target.className == "[object SVGAnimatedString]") {
+              doPan = true;
+              mousepos = { x: ev.clientX, y: ev.clientY };
+            }
+          },
+
+          mouseMoveHandler: function (ev) {
+            if (doPan) {
+              panZoom.panBy({
+                x: ev.clientX - mousepos.x,
+                y: ev.clientY - mousepos.y,
+              });
+              mousepos = { x: ev.clientX, y: ev.clientY };
+              window.getSelection().removeAllRanges();
+            }
+          },
+
+          mouseUpHandler: function (ev) {
+            doPan = false;
+          },
+
+          init: function (options) {
+            options.svgElement.addEventListener(
+              "mousedown",
+              this.mouseDownHandler,
+              false
+            );
+            options.svgElement.addEventListener(
+              "mousemove",
+              this.mouseMoveHandler,
+              false
+            );
+            options.svgElement.addEventListener(
+              "mouseup",
+              this.mouseUpHandler,
+              false
+            );
+          },
+
+          destroy: function (options) {
+            options.svgElement.removeEventListener(
+              "mousedown",
+              this.mouseDownHandler,
+              false
+            );
+            options.svgElement.removeEventListener(
+              "mousemove",
+              this.mouseMoveHandler,
+              false
+            );
+            options.svgElement.removeEventListener(
+              "mouseup",
+              this.mouseUpHandler,
+              false
+            );
+          },
+        };
+        panZoom = svgPanZoom("#mySvgId", {
+          zoomEnabled: true,
+          controlIconsEnabled: true,
+          fit: 1,
+          center: 1,
+          customEventsHandler: eventsHandler,
+        });
+      };
+
+      const renderDiagram = () => {
+        try {
+          const codeInput = document.getElementById("code");
+          const diagramCode = codeInput.value;
+          const diagramOutput = document.getElementById("diagram");
+
+          mermaid.render("mySvgId", diagramCode, (svgCode) => {
+            diagramOutput.innerHTML = svgCode.replace(
+              /( )*max-width:( 0-9.)*px;/i,
+              ""
+            );
+            zoomSvg();
+            handleButtons();
+          });
+        } catch (e) {
+          diagramOutput.innerHTML =
+            '<p style="color: red;">Error rendering diagram</p>';
+        }
+      };
+
+      const handleButtons = () => {
+        if (isLoadedButtons) return;
+
+        isLoadedButtons = true;
+
+        document
+          .getElementById("leftToRightBtn")
+          .addEventListener("click", () => {
+            const codeInput = document.getElementById("code");
+            codeInput.value = codeInput.value.replace(
+              "flowchart TB",
+              "flowchart LR"
+            );
+            codeInput.dispatchEvent(new Event("input"));
+          });
+
+        document
+          .getElementById("topToBottomBtn")
+          .addEventListener("click", () => {
+            const codeInput = document.getElementById("code");
+            codeInput.value = codeInput.value.replace(
+              "flowchart LR",
+              "flowchart TB"
+            );
+            codeInput.dispatchEvent(new Event("input"));
+          });
+      };
+
+      document.addEventListener("DOMContentLoaded", (event) => {
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "dark",
+          flowchart: {
+            useMaxWidth: true,
+            nodeSpacing: 100,
+            rankSpacing: 100,
+            arrowMarkerAbsolute: false,
+            dividerMargin: 20,
+          },
+        });
+
+        const codeInput = document.getElementById("code");
+        const diagramOutput = document.getElementById("diagram");
+
+        codeInput.addEventListener("input", () => {
+          diagramOutput.innerHTML = "";
+          renderDiagram();
+        });
+
+        renderDiagram();
+      });
+    </script>
+  </head>
+  <body>
+    <h1 style="font-size: 24px; text-align: center; margin-bottom: 20px">
+      VTEX IO Dependency Tree
+    </h1>
+    <div style="margin-bottom: 20px">
+      <label
+        for="code"
+        style="display: none; font-weight: bold; margin-bottom: 5px"
+        >Mermaid code</label
+      >
+      <textarea id="code" rows="10" cols="50"></textarea>
+    </div>
+
+    <div
+      style="
+        text-align: center;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: flex-end;
+      "
+    >
+      <p style="margin-right: 10px; font-size: 16px">
+        Change diagram direction:
+      </p>
+      <button
+        id="leftToRightBtn"
+        style="
+          border: none;
+          padding: 10px 20px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 16px;
+          margin: 4px 2px;
+          cursor: pointer;
+          border-radius: 4px;
+        "
+      >
+        Left to Right
+      </button>
+      <button
+        id="topToBottomBtn"
+        style="
+          border: none;
+          padding: 10px 20px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 16px;
+          margin: 4px 2px;
+          cursor: pointer;
+          border-radius: 4px;
+        "
+      >
+        Top to Bottom
+      </button>
+    </div>
+
+    <div id="diagram" style="border-radius: 4px; padding: 10px"></div>
+  </body>
+</html>
