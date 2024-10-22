@@ -14,7 +14,7 @@ You can open the Command Palette (`Ctrl+Shift+P`) and run the commands.
 
 ### What commands are available?
 
-- **Create a VTEX IO diagram**: Create a diagram of your VTEX IO app in the current workspace or the selected folder.
+- **Create a VTEX IO diagram**: Create a diagram of your VTEX IO app in the current workspace or the selected directory using the contextual menu in the editor.
 
 ### Commands description
 

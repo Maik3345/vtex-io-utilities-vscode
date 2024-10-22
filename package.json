@@ -2,7 +2,7 @@
   "name": "vtex-io-utilities-vscode",
   "displayName": "VTEX IO Utilities for VS Code",
   "description": "",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": {
     "name": "Maik Restrepo"
   },
@@ -14,6 +14,7 @@
     "vtex io",
     "vtex io diagram"
   ],
+  "activationEvents": [],
   "categories": [
     "Extension Packs"
   ],
@@ -21,7 +22,6 @@
     "type": "git",
     "url": "https://github.com/Maik3345/vtex-io-utilities-vscode"
   },
-  "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -30,8 +30,23 @@
         "title": "Create a VTEX IO diagram",
         "category": "VTEX IO Utilities",
         "shortTitle": "Create Diagram"
+      },
+      {
+        "command": "vtex-io-utilities-vscode.createDiagramFromContext",
+        "title": "Create a VTEX IO diagram",
+        "category": "VTEX IO Utilities",
+        "shortTitle": "Create Diagram"
       }
-    ]
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "vtex-io-utilities-vscode.createDiagramFromContext",
+          "when": "resourceScheme == 'file'",
+          "group": "navigation"
+        }
+      ]
+    }
   },
   "scripts": {
     "publish": "npm run build && vsce publish",
