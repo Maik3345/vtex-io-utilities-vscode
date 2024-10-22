@@ -24,4 +24,4 @@ This command helps you to visualize the dependencies of your VTEX IO app in a di
 
 ### How to install the extension?
 
-You can install the extension from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=vtex-io-utilities.vscode)
+You can install the extension from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=MaikRestrepo.vtex-io-utilities-vscode)
