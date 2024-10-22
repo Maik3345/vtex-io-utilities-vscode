@@ -1,12 +1,12 @@
 import { ManifestContent } from "../../models";
 
 /**
- * Get the three dependencies of a manifest.json file
+ * Get the tree dependencies of a manifest.json file
  * @param manifestData
  * @param manifestContent
  * @returns
  */
-export const getThreeDependencies = (
+export const getTreeDependencies = (
   manifestData: ManifestContent,
   manifestContent: ManifestContent[]
 ) => {

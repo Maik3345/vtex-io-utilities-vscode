@@ -4,7 +4,7 @@ export interface ManifestContent {
   name: string;
 }
 
-export interface GraphThree {
+export interface GraphTree {
   graph: string;
   numberOfDependencies: number;
 }

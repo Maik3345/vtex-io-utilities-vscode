@@ -1,9 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { GraphThree, ManifestContent } from "../../models";
+import { GraphTree, ManifestContent } from "../../models";
 import {
-  getThreeDependencies,
+  getTreeDependencies,
   sortDependenciesByFrequency,
 } from "../createDiagram";
 
@@ -13,7 +13,7 @@ export async function readWorkspaceFolders(
 ) {
   const workspaceFolders = vscode.workspace.workspaceFolders;
   let graphStart = `flowchart ${graphDirection}\n`;
-  let graphContent: GraphThree[] = [];
+  let graphContent: GraphTree[] = [];
   let manifestContent: ManifestContent[] = [];
 
   let foldersToRead: string[] = [];
@@ -31,7 +31,7 @@ export async function readWorkspaceFolders(
   if (foldersToRead.length) {
     await processFolders(foldersToRead, manifestContent);
     manifestContent.forEach((manifestData) => {
-      const dependenciesList = getThreeDependencies(
+      const dependenciesList = getTreeDependencies(
         manifestData,
         manifestContent
       );

@@ -1,3 +1,3 @@
-export * from './create';
-export * from './dependenciesFrequency';
-export * from './dependenciesThree';
+export * from "./create";
+export * from "./dependenciesFrequency";
+export * from "./dependenciesTree";
