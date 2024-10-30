@@ -39,13 +39,13 @@
       },
       {
         "command": "vtex-io-utilities-vscode.copyInstallCommand",
-        "title": "Copy install vtex apps command",
+        "title": "Copy install VTEX apps command",
         "category": "VTEX IO Utilities",
         "shortTitle": "Copy Install Command"
       },
       {
         "command": "vtex-io-utilities-vscode.copyDeployCommand",
-        "title": "Copy deploy vtex apps command",
+        "title": "Copy deploy VTEX apps command",
         "category": "VTEX IO Utilities",
         "shortTitle": "Copy deploy Command"
       }
