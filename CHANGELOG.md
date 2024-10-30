@@ -6,6 +6,21 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.2.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.1.0...v1.2.0) - (2024-10-30)
+
+### Features
+
+* create contextual menu and add the option to copy the command to install or deploy all selected apps ([#2](https://github.com/Maik3345/vtex-io-utilities-vscode/pull/2)) ([adf6ce64](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/adf6ce640b446bd0a98770e7e50a57e53082af00))
+
+### Bug Fixes
+
+* main: rename graphthree to graphtree and update related references ([92fbdef1](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/92fbdef1d37babcb3306ac6e9801c1a3482a0c56))
+
+### Documentation
+
+* main: update installation link for vs code extension ([0e3bdc83](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/0e3bdc83e75f7f1ab04ddf5050a613895cecc739))
+
+
 ## [1.1.0](https://github.com/Maik3345/vtex-io-utilities-vscode/releases/tag/v1.1.0) - (2024-10-21)
 
 ### Features
