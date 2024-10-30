@@ -50,8 +50,9 @@
   },
   "scripts": {
     "publish": "npm run build && vsce publish",
-    "build": "npm run compile && vsce package",
+    "build": "npm run compile && npm run package",
     "compile": "webpack",
+    "package": "vsce package --out dist",
     "watch": "webpack --watch",
     "lint": "eslint src --ext ts",
     "prepare": "npx husky"
