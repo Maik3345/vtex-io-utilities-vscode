@@ -7,7 +7,6 @@ export function getWebviewContent(
   graph: string | null,
   selectedFolders?: string[]
 ): string {
-  console.log("graph", graph);
   if (!graph || graph === "") {
     return `<h1>No dependencies found</h1>
     <h2>To visualize the dependency diagram:</h2>

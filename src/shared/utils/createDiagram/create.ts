@@ -1,22 +1,42 @@
-import * as vscode from "vscode";
-import { readWorkspaceFolders } from "../workspace";
-import { getWebviewContent } from "./render";
+import { GraphTree } from "../../models";
+import { processFolders, readWorkspaceFolders } from "../workspace";
+import { sortDependenciesByFrequency } from "./dependenciesFrequency";
+import { getTreeDependencies } from "./dependenciesTree";
 
-export async function createDiagram(
-  context: vscode.ExtensionContext,
+export const createGraph = async (
+  graphDirection: string,
   contextPaths?: string[]
-) {
-  let graphDirection = "TB";
-  const graph = await readWorkspaceFolders(graphDirection, contextPaths);
+) => {
+  let graphStart = `flowchart ${graphDirection}\n`;
+  let graphContent: GraphTree[] = [];
 
-  const panel = vscode.window.createWebviewPanel(
-    "diagramWebview",
-    "Create Diagram",
-    vscode.ViewColumn.One,
-    {
-      enableScripts: true,
-    }
+  const { foldersToRead, manifestContent } = await readWorkspaceFolders(
+    contextPaths
   );
 
-  panel.webview.html = getWebviewContent(context, graph, contextPaths);
-}
+  if (foldersToRead.length) {
+    await processFolders(foldersToRead, manifestContent);
+    manifestContent.forEach((manifestData) => {
+      const dependenciesList = getTreeDependencies(
+        manifestData,
+        manifestContent
+      );
+      if (dependenciesList) {
+        graphContent.push(dependenciesList);
+      }
+    });
+  }
+
+  if (!graphContent.length) {
+    return null;
+  }
+
+  const sortedGraph = sortDependenciesByFrequency(graphContent);
+
+  if (sortedGraph == "") {
+    return null;
+  }
+
+  const content = `${graphStart}${sortedGraph}`;
+  return content;
+};

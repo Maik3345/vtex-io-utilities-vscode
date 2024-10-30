@@ -1,6 +1,7 @@
 export interface ManifestContent {
   dependencies: { [key: string]: string };
   vendor: string;
+  version: string;
   name: string;
 }
 
