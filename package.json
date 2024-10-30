@@ -36,14 +36,49 @@
         "title": "Create a VTEX IO diagram",
         "category": "VTEX IO Utilities",
         "shortTitle": "Create Diagram"
+      },
+      {
+        "command": "vtex-io-utilities-vscode.copyInstallCommand",
+        "title": "Copy install vtex apps command",
+        "category": "VTEX IO Utilities",
+        "shortTitle": "Copy Install Command"
+      },
+      {
+        "command": "vtex-io-utilities-vscode.copyDeployCommand",
+        "title": "Copy deploy vtex apps command",
+        "category": "VTEX IO Utilities",
+        "shortTitle": "Copy deploy Command"
+      }
+    ],
+    "submenus": [
+      {
+        "id": "vtex-io-utilities-vscode.submenu",
+        "label": "Vtex IO Utilities"
       }
     ],
     "menus": {
       "explorer/context": [
         {
+          "submenu": "vtex-io-utilities-vscode.submenu",
+          "when": "resourceScheme == 'file'",
+          "group": "navigation/@1"
+        }
+      ],
+      "vtex-io-utilities-vscode.submenu": [
+        {
           "command": "vtex-io-utilities-vscode.createDiagramFromContext",
           "when": "resourceScheme == 'file'",
-          "group": "navigation"
+          "group": "navigation/@1"
+        },
+        {
+          "command": "vtex-io-utilities-vscode.copyInstallCommand",
+          "when": "resourceScheme == 'file'",
+          "group": "navigation/@1"
+        },
+        {
+          "command": "vtex-io-utilities-vscode.copyDeployCommand",
+          "when": "resourceScheme == 'file'",
+          "group": "navigation/@1"
         }
       ]
     }
@@ -55,7 +90,8 @@
     "package": "vsce package --out dist",
     "watch": "webpack --watch",
     "lint": "eslint src --ext ts",
-    "prepare": "npx husky"
+    "prepare": "npx husky",
+    "postrelease": "npm run build"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
@@ -85,5 +121,8 @@
   },
   "files": [
     "src/diagram.html"
-  ]
+  ],
+  "dependencies": {
+    "date-fns": "^4.1.0"
+  }
 }

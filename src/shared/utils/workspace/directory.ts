@@ -1,19 +1,14 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
-import { GraphTree, ManifestContent } from "../../models";
-import {
-  getTreeDependencies,
-  sortDependenciesByFrequency,
-} from "../createDiagram";
+import { ManifestContent } from "../../models";
 
 export async function readWorkspaceFolders(
-  graphDirection: string,
-  contextPaths?: string[]
+  contextPaths?: string[],
+  useWorkspaceFolders = true
 ) {
   const workspaceFolders = vscode.workspace.workspaceFolders;
-  let graphStart = `flowchart ${graphDirection}\n`;
-  let graphContent: GraphTree[] = [];
+
   let manifestContent: ManifestContent[] = [];
 
   let foldersToRead: string[] = [];
@@ -22,37 +17,15 @@ export async function readWorkspaceFolders(
   if (contextPaths && contextPaths.length > 0) {
     // Get folders to read from the provided context paths
     foldersToRead = await getFoldersToReadFromContextPaths(contextPaths);
+  } else if (!useWorkspaceFolders) {
+    foldersToRead = [];
   }
   // If multiple workspace folders or none, read all workspace folders
   else {
     foldersToRead = workspaceFolders?.map((folder) => folder.uri.fsPath) || [];
   }
 
-  if (foldersToRead.length) {
-    await processFolders(foldersToRead, manifestContent);
-    manifestContent.forEach((manifestData) => {
-      const dependenciesList = getTreeDependencies(
-        manifestData,
-        manifestContent
-      );
-      if (dependenciesList) {
-        graphContent.push(dependenciesList);
-      }
-    });
-  }
-
-  if (!graphContent.length) {
-    return null;
-  }
-
-  const sortedGraph = sortDependenciesByFrequency(graphContent);
-
-  if (sortedGraph == "") {
-    return null;
-  }
-
-  const content = `${graphStart}${sortedGraph}`;
-  return content;
+  return { foldersToRead, manifestContent };
 }
 
 async function getFoldersToReadFromContextPaths(
@@ -74,7 +47,7 @@ async function getFoldersToReadFromContextPaths(
   }
 }
 
-async function processFolders(
+export async function processFolders(
   foldersToRead: string[],
   manifestContent: ManifestContent[]
 ) {

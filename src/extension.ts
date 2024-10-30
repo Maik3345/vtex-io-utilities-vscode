@@ -1,28 +1,50 @@
 import * as vscode from "vscode";
-import { createDiagram } from "./shared";
+import * as commands from "./commands";
+import { COMMAND_KEYS, VTEX_COMMANDS } from "./constants";
+import { Logger } from "./shared";
 
 export function activate(context: vscode.ExtensionContext) {
   registerCommands(context);
 }
 
 function registerCommands(context: vscode.ExtensionContext) {
-  // Registrar el comando para la paleta de comandos
-  let disposable = vscode.commands.registerCommand(
-    "vtex-io-utilities-vscode.createDiagram",
+  const createDiagram = vscode.commands.registerCommand(
+    COMMAND_KEYS.CreateDiagram,
     async () => {
-      await createDiagram(context);
+      await commands.createDiagram(context);
     }
   );
 
-  // Registrar el comando para el menú contextual
-  let disposableContext = vscode.commands.registerCommand(
-    "vtex-io-utilities-vscode.createDiagramFromContext",
+  const createDiagramContext = vscode.commands.registerCommand(
+    COMMAND_KEYS.CreateDiagramFromContext,
     async (uri: vscode.Uri, uris: vscode.Uri[]) => {
       const paths = uris.length ? uris.map((u) => u.fsPath) : [uri.fsPath];
-      await createDiagram(context, paths);
+      await commands.createDiagram(context, paths);
     }
   );
 
-  context.subscriptions.push(disposable);
-  context.subscriptions.push(disposableContext);
+  const copyInstallCommand = vscode.commands.registerCommand(
+    COMMAND_KEYS.CopyInstallCommand,
+    async (uri: vscode.Uri, uris: vscode.Uri[]) => {
+      const paths = uris.length ? uris.map((u) => u.fsPath) : [uri.fsPath];
+      await commands.copyVtexCommand(VTEX_COMMANDS.Install, paths);
+    }
+  );
+
+  const copyDeployCommand = vscode.commands.registerCommand(
+    COMMAND_KEYS.CopyDeployCommand,
+    async (uri: vscode.Uri, uris: vscode.Uri[]) => {
+      const paths = uris.length ? uris.map((u) => u.fsPath) : [uri.fsPath];
+      await commands.copyVtexCommand(VTEX_COMMANDS.Deploy, paths);
+    }
+  );
+
+  context.subscriptions.push(
+    createDiagram,
+    createDiagramContext,
+    copyInstallCommand,
+    copyDeployCommand
+  );
+
+  Logger.info("VTEX IO Utilities is now active!");
 }
