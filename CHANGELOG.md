@@ -6,6 +6,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.3.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.2.0...v1.3.0) - (2025-06-18)
+
+### Features
+
+* add status bar command and create status bar item ([#3](https://github.com/Maik3345/vtex-io-utilities-vscode/pull/3)) ([a5e8fcb4](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/a5e8fcb49fb0c97b6248e1dbf0856fb77e640652))
+
+
 ## [1.2.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.1.0...v1.2.0) - (2024-10-30)
 
 ### Features
