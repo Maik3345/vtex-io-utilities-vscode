@@ -753,7 +753,7 @@ export async function handleWorkspaceStatusBarClick(): Promise<void> {
 
           progress.report({
             increment: 50,
-            message: "OK",
+            message: `Found ${workspaceItems.length} workspaces`,
           });
 
           // Show the QuickPick
