@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as commands from "./commands";
 import { COMMAND_KEYS, VTEX_COMMANDS } from "./constants";
-import { Logger } from "./shared";
+import { Logger, VtexFileWatcher } from "./shared";
 
 export function activate(context: vscode.ExtensionContext) {
   Logger.info("Activando extensión VTEX IO Utilities");
@@ -10,9 +10,31 @@ export function activate(context: vscode.ExtensionContext) {
   try {
     // Use the centralized function to get the status bar item
     const statusBarItem = commands.getStatusBar();
-    // Push to context subscriptions to ensure proper disposal
-    context.subscriptions.push(statusBarItem);
-    Logger.info("Elemento de la barra de estado creado y agregado a las suscripciones");
+    
+    // Solo agregar a las suscripciones si hay un elemento de barra de estado
+    if (statusBarItem) {
+      context.subscriptions.push(statusBarItem);
+      Logger.info("Elemento de la barra de estado creado y agregado a las suscripciones");
+    } else {
+      Logger.info("No se encontró cuenta VTEX, no se muestra barra de estado");
+    }
+
+    // Iniciar la monitorización de archivos VTEX
+    const vtexWatcher = new VtexFileWatcher();
+    vtexWatcher.startWatching(context, () => {
+      commands.getStatusBar();
+    });
+    
+    // Como respaldo, configurar un intervalo para verificar los archivos periódicamente
+    // Esto nos asegura que aún si los watchers fallan, tendremos actualizaciones
+    const intervalId = setInterval(() => {
+      Logger.info("Verificación periódica de archivos VTEX");
+      commands.getStatusBar();
+    }, 30000); // Verificar cada 30 segundos
+    
+    // Registrar el intervalo para limpiarlo cuando la extensión se desactive
+    context.subscriptions.push({ dispose: () => clearInterval(intervalId) });
+    
   } catch (error) {
     Logger.error(`Error al mostrar el elemento de la barra de estado: ${error}`);
   }
@@ -59,8 +81,12 @@ function registerCommands(context: vscode.ExtensionContext) {
     COMMAND_KEYS.ShowStatusBar,
     () => {
       // Use the centralized function to show the status bar
-      commands.getStatusBar();
-      vscode.window.showInformationMessage("Elemento 'Hola mundo' mostrado en la barra de estado");
+      const statusBarItem = commands.getStatusBar();
+      if (statusBarItem) {
+        vscode.window.showInformationMessage("Información de cuenta VTEX mostrada en la barra de estado");
+      } else {
+        vscode.window.showWarningMessage("No se encontró información de cuenta VTEX activa");
+      }
     }
   );
 

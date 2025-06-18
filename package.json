@@ -20,7 +20,8 @@
   "publisher": "MaikRestrepo",
   "main": "./dist/extension.js",
   "files": [
-    "src/diagram.html"
+    "src/diagram.html",
+    "resources/*.woff"
   ],
   "scripts": {
     "publish": "npm run build && vsce publish",
@@ -33,6 +34,15 @@
     "postrelease": "npm run build"
   },
   "contributes": {
+    "icons": {
+      "vtex-logo": {
+        "description": "VTEX logo icon",
+        "default": {
+          "fontPath": "resources/font.woff",
+          "fontCharacter": "\\e900"
+        }
+      }
+    },
     "commands": [
       {
         "command": "vtex-io-utilities-vscode.createDiagram",
