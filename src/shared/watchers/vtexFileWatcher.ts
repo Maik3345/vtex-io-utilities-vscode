@@ -96,11 +96,7 @@ export class VtexFileWatcher {
 
     // También registrar watchers directos a los archivos como alternativa
     try {
-      // Intentar configurar watchers adicionales usando un enfoque diferente
-      const sessionFileUri = vscode.Uri.file(SESSION_FILE_PATH);
-      const workspaceFileUri = vscode.Uri.file(WORKSPACE_FILE_PATH);
-
-      // Watcheros adicionales con patrón glob específico
+      // Watchers adicionales con patrón glob específico
       const additionalSessionWatcher = vscode.workspace.createFileSystemWatcher(
         new vscode.RelativePattern(
           path.dirname(SESSION_FILE_PATH),
