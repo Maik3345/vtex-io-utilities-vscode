@@ -1,6 +1,11 @@
 import * as vscode from "vscode";
 import { Logger } from "../helpers/logger";
-import { getVtexAccount, getAvailableVtexAccounts, getVtexInfo, switchVtexAccount } from "./account";
+import {
+  getVtexAccount,
+  getAvailableVtexAccounts,
+  getVtexInfo,
+  switchVtexAccount,
+} from "./account";
 import { executeCommandInTerminal } from "./terminal";
 
 // Global variables for status bar elements
@@ -32,7 +37,7 @@ export function getStatusBar(): vscode.StatusBarItem | undefined {
     Logger.info("Creating new status bar element for VTEX");
     statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
-      110
+      120
     );
     statusBarItem.command = "vtex-io-utilities-vscode.clickStatusBar";
   }
@@ -96,7 +101,7 @@ export function getWorkspaceStatusBar(): vscode.StatusBarItem | undefined {
     Logger.info("Creating new workspace status bar element for VTEX");
     workspaceStatusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
-      120
+      110
     );
     workspaceStatusBarItem.command =
       "vtex-io-utilities-vscode.clickWorkspaceStatusBar";
@@ -146,7 +151,10 @@ export async function handleStatusBarClick(): Promise<void> {
 
   // Create separate arrays for each option type
   const accountOptions: string[] = [];
-  const actions: string[] = ["$(add) Add account manually", "List account information"];
+  const actions: string[] = [
+    "$(add) Add account manually",
+    "List account information",
+  ];
 
   // Add available accounts
   availableAccounts.forEach((account) => {
@@ -163,7 +171,7 @@ export async function handleStatusBarClick(): Promise<void> {
     return a.localeCompare(b); // Sort the rest alphabetically
   });
 
-  const allOptions: string[] = [...accountOptions, "---", ...actions];
+  const allOptions: string[] = [...actions, ...accountOptions];
 
   // Show the QuickPick menu using async/await
   const selection = await vscode.window.showQuickPick(allOptions, {
@@ -196,14 +204,14 @@ export async function handleStatusBarClick(): Promise<void> {
         title: "Add VTEX Account Manually",
         validateInput: (value) => {
           // Validate the account name format (modify as needed based on VTEX account naming rules)
-          if (!value || value.trim() === '') {
+          if (!value || value.trim() === "") {
             return "Account name cannot be empty";
           }
           return null; // No validation error
         },
         ignoreFocusOut: true,
       });
-      
+
       if (accountName) {
         // Switch to the manually entered account
         await switchVtexAccount(accountName);

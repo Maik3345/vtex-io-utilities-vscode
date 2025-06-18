@@ -16,15 +16,15 @@ export async function executeVtexCommandSilently(
   showProgress: boolean = false
 ): Promise<string> {
   Logger.info(`Executing VTEX command silently: ${command}`);
-  
+
   let progressResolve: (() => void) | undefined;
   let progressPromise: Promise<void> | undefined;
-  
+
   if (showProgress) {
     // Create a progress notification if requested
     progressPromise = new Promise<void>((resolve) => {
       progressResolve = resolve;
-      
+
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -59,7 +59,11 @@ export async function executeVtexCommandSilently(
             // Don't reject here, resolve with stderr to handle errors gracefully
             resolve(stderr);
           } else {
-            Logger.info(`Command executed successfully, output length: ${stdout?.length || 0}`);
+            Logger.info(
+              `Command executed successfully, output length: ${
+                stdout?.length || 0
+              }`
+            );
             resolve(stdout);
           }
         }
@@ -79,12 +83,12 @@ export async function executeVtexCommandSilently(
     return result;
   } catch (error) {
     Logger.error(`Exception executing VTEX command silently: ${error}`);
-    
+
     // Resolve the progress indicator if one was created
     if (progressResolve) {
       progressResolve();
     }
-    
+
     throw error;
   }
 }
@@ -141,7 +145,7 @@ export async function executeCommandInTerminal(
       if (forceNewTerminal) {
         // Force creation of a new terminal
         Logger.info(`Creating new terminal (forced): ${terminalName}`);
-        
+
         // If a terminal with this name already exists, dispose it first
         const existingTerminals = vscode.window.terminals;
         const existingTerminal = existingTerminals.find(
@@ -150,7 +154,7 @@ export async function executeCommandInTerminal(
         if (existingTerminal) {
           existingTerminal.dispose();
         }
-        
+
         // Create a new terminal
         terminal = vscode.window.createTerminal(terminalName);
       } else {
@@ -167,18 +171,6 @@ export async function executeCommandInTerminal(
       // Estrategia para limpiar la línea actual y ejecutar un comando nuevo
       Logger.info(`Executing command in terminal: ${command}`);
 
-      // Secuencia 1: Enviar Ctrl+C para interrumpir cualquier comando pendiente
-      terminal.sendText("\u0003", false);
-      
-      // Pequeña pausa
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
-      // Secuencia 2: Enviar uno o más Enter para asegurarnos de tener una línea limpia
-      terminal.sendText("", true);  // Envía Enter
-      
-      // Pequeña pausa
-      await new Promise(resolve => setTimeout(resolve, 50));
-      
       // Secuencia 3: Ahora ejecutamos nuestro comando en una línea limpia
       terminal.sendText(command, true);
 

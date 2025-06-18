@@ -2,6 +2,8 @@ import * as vscode from "vscode";
 import * as path from "path";
 import * as os from "os";
 import { Logger } from "../../shared";
+import { markWorkspacesCacheForRefresh } from "../vtex/cache";
+import { getVtexAccount } from "../vtex/account";
 
 // Rutas a los archivos de configuración VTEX
 export const VTEX_SESSION_DIR = path.join(os.homedir(), ".vtex", "session");
@@ -36,13 +38,13 @@ export class VtexFileWatcher {
       `Configurando watcher para ${SESSION_FILE_PATH} y ${WORKSPACE_FILE_PATH}`
     );
 
-    // Crear watchers para los archivos específicos
+    // Crear watchers para los archivos específicos con rutas absolutas para mejor monitoreo
     const sessionWatcher = vscode.workspace.createFileSystemWatcher(
-      vscode.Uri.file(SESSION_FILE_PATH).fsPath
+      SESSION_FILE_PATH
     );
 
     const workspaceWatcher = vscode.workspace.createFileSystemWatcher(
-      vscode.Uri.file(WORKSPACE_FILE_PATH).fsPath
+      WORKSPACE_FILE_PATH
     );
 
     // Mantener una referencia al watcher principal para poder detenerlo después
@@ -69,10 +71,19 @@ export class VtexFileWatcher {
     });
 
     // Configurar los listeners para el archivo workspace.json
-    workspaceWatcher.onDidChange(() => {
+    workspaceWatcher.onDidChange(async () => {
       Logger.info(
         "Cambio detectado en workspace.json, actualizando barra de estado"
       );
+      
+      // Cuando cambia el archivo workspace.json desde fuera, marcamos la caché para refrescarla 
+      // sin perder toda la información de caché
+      const currentAccount = getVtexAccount();
+      if (currentAccount) {
+        Logger.info(`Marcando caché para refrescar para la cuenta ${currentAccount} debido a cambio externo en workspace.json`);
+        await markWorkspacesCacheForRefresh(currentAccount);
+      }
+      
       updateCallback();
     });
 
@@ -96,7 +107,7 @@ export class VtexFileWatcher {
 
     // También registrar watchers directos a los archivos como alternativa
     try {
-      // Watchers adicionales con patrón glob específico
+      // Watchers adicionales con patrón glob específico para session.json
       const additionalSessionWatcher = vscode.workspace.createFileSystemWatcher(
         new vscode.RelativePattern(
           path.dirname(SESSION_FILE_PATH),
@@ -110,8 +121,59 @@ export class VtexFileWatcher {
         );
         updateCallback();
       });
+      
+      // Watcher adicional para workspace.json
+      const additionalWorkspaceWatcher = vscode.workspace.createFileSystemWatcher(
+        new vscode.RelativePattern(
+          path.dirname(WORKSPACE_FILE_PATH),
+          path.basename(WORKSPACE_FILE_PATH)
+        )
+      );
+
+      additionalWorkspaceWatcher.onDidChange(async () => {
+        Logger.info(
+          "Cambio detectado en workspace.json (watcher adicional), actualizando barra de estado"
+        );
+        
+        // Cuando cambia el archivo workspace.json desde fuera, marcamos la caché para refrescarla
+        // sin perder toda la información de caché
+        const currentAccount = getVtexAccount();
+        if (currentAccount) {
+          Logger.info(`Marcando caché para refrescar para la cuenta ${currentAccount} debido a cambio externo en workspace.json (watcher adicional)`);
+          await markWorkspacesCacheForRefresh(currentAccount);
+        }
+        
+        updateCallback();
+      });
+
+      // Último intento: watcher para cualquier cambio en el directorio .vtex/session
+      const vtexSessionDirWatcher = vscode.workspace.createFileSystemWatcher(
+        new vscode.RelativePattern(
+          VTEX_SESSION_DIR,
+          "*.json"
+        )
+      );
+
+      vtexSessionDirWatcher.onDidChange(async (uri) => {
+        Logger.info(
+          `Cambio detectado en archivo JSON de VTEX (directorio watcher): ${uri.fsPath}`
+        );
+        
+        // Si el cambio es en workspace.json, limpiamos el caché
+        if (uri.fsPath.endsWith('workspace.json')) {
+          const currentAccount = getVtexAccount();
+          if (currentAccount) {
+            Logger.info(`Marcando caché para refrescar para la cuenta ${currentAccount} debido a cambio en archivo workspace.json`);
+            await markWorkspacesCacheForRefresh(currentAccount);
+          }
+        }
+        
+        updateCallback();
+      });
 
       context.subscriptions.push(additionalSessionWatcher);
+      context.subscriptions.push(additionalWorkspaceWatcher);
+      context.subscriptions.push(vtexSessionDirWatcher);
     } catch (error) {
       Logger.error(`Error al crear watchers adicionales: ${error}`);
     }

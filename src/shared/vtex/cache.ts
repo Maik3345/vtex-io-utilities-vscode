@@ -227,3 +227,93 @@ async function getWorkspaceCache(): Promise<Record<string, WorkspaceCache>> {
   // Return cache or empty object if none exists
   return cache || {};
 }
+
+/**
+ * Removes a specific workspace from cache for an account
+ * @param accountName The account name to update cache for
+ * @param workspaceName The name of the workspace to remove from cache
+ * @returns True if the workspace was removed, false otherwise
+ */
+export async function removeWorkspaceFromCache(
+  accountName: string,
+  workspaceName: string
+): Promise<boolean> {
+  try {
+    Logger.info(`Removing workspace ${workspaceName} from cache for account ${accountName}`);
+    
+    if (!extensionContext) {
+      Logger.error("Cannot update workspace cache: extension context not initialized");
+      return false;
+    }
+    
+    // Get existing cache
+    const existingCache = await getWorkspaceCache();
+    
+    // Check if we have a cache entry for this account
+    const cacheEntry = existingCache[accountName];
+    if (!cacheEntry) {
+      Logger.info(`No cache found for account ${accountName}, nothing to update`);
+      return false;
+    }
+    
+    // Find and remove the workspace
+    const initialLength = cacheEntry.workspaces.length;
+    cacheEntry.workspaces = cacheEntry.workspaces.filter(ws => ws.name !== workspaceName);
+    
+    // If no change in length, the workspace wasn't found
+    if (cacheEntry.workspaces.length === initialLength) {
+      Logger.info(`Workspace ${workspaceName} not found in cache for ${accountName}`);
+      return false;
+    }
+    
+    // Save updated cache to extension storage
+    extensionContext.globalState.update(CACHE_KEY, existingCache);
+    
+    Logger.info(`Successfully removed workspace ${workspaceName} from cache for account ${accountName}`);
+    return true;
+  } catch (error) {
+    Logger.error(`Error removing workspace from cache: ${error}`);
+    return false;
+  }
+}
+
+/**
+ * Sets the workspace cache with a timestamp of now, forcing a refresh to happen
+ * without losing other cache information
+ * @param accountName The account name to mark for refresh
+ * @returns True if the cache was updated successfully, false otherwise
+ */
+export async function markWorkspacesCacheForRefresh(
+  accountName: string
+): Promise<boolean> {
+  try {
+    Logger.info(`Marking workspaces cache for refresh for account ${accountName}`);
+    
+    if (!extensionContext) {
+      Logger.error("Cannot mark workspaces cache: extension context not initialized");
+      return false;
+    }
+    
+    // Get existing cache
+    const existingCache = await getWorkspaceCache();
+    
+    // Check if we have a cache entry for this account
+    const cacheEntry = existingCache[accountName];
+    if (!cacheEntry) {
+      Logger.info(`No cache found for account ${accountName}, nothing to mark for refresh`);
+      return false;
+    }
+    
+    // Set timestamp to 0 to force a refresh next time they're requested
+    cacheEntry.timestamp = 0;
+    
+    // Save updated cache to extension storage
+    extensionContext.globalState.update(CACHE_KEY, existingCache);
+    
+    Logger.info(`Successfully marked workspace cache for refresh for account ${accountName}`);
+    return true;
+  } catch (error) {
+    Logger.error(`Error marking workspace cache for refresh: ${error}`);
+    return false;
+  }
+}

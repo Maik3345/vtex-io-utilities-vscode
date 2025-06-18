@@ -3,9 +3,18 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import { Logger } from "../helpers/logger";
-import { executeCommandInTerminal, executeVtexCommandSilently } from "./terminal";
+import {
+  executeCommandInTerminal,
+  executeVtexCommandSilently,
+} from "./terminal";
 import { getVtexAccount } from "./account";
-import { cacheWorkspaces, getCachedWorkspaces, clearWorkspaceCache, updateActiveWorkspaceInCache } from "./cache";
+import {
+  cacheWorkspaces,
+  getCachedWorkspaces,
+  clearWorkspaceCache,
+  updateActiveWorkspaceInCache,
+  removeWorkspaceFromCache,
+} from "./cache";
 
 // Paths to VTEX configuration files
 const VTEX_SESSION_DIR = path.join(os.homedir(), ".vtex", "session");
@@ -25,10 +34,13 @@ export function getVtexWorkspace(): string | undefined {
       return undefined;
     }
 
-    // Read and parse the file
-    const workspaceContent = fs.readFileSync(WORKSPACE_FILE_PATH, "utf-8");
+    // Use readFileSync con opción de no usar caché para asegurar que obtenemos los datos más recientes
+    const workspaceContent = fs.readFileSync(WORKSPACE_FILE_PATH, {
+      encoding: "utf-8",
+      flag: "r", // Abre el archivo en modo lectura pero fuerza una lectura fresca
+    });
     const workspaceData = JSON.parse(workspaceContent);
-    
+
     // Check if it has the currentWorkspace field
     if (!workspaceData.currentWorkspace) {
       Logger.info(
@@ -240,7 +252,13 @@ export async function showWorkspaceOptions(
       if (workspaceName) {
         // Execute the workspace switch command
         const switchCommand = `vtex use ${workspaceName}`;
-        await executeVtexCommandSilently(switchCommand, true, true);
+        await executeCommandInTerminal(switchCommand);
+
+        // Update the active workspace in cache instead of clearing it
+        const currentAccount = getVtexAccount();
+        if (currentAccount) {
+          await updateActiveWorkspaceInCache(currentAccount, workspaceName);
+        }
 
         vscode.window.showInformationMessage(
           `Switching to workspace: ${workspaceName}`
@@ -271,7 +289,13 @@ export async function createNewWorkspace(terminalName: string): Promise<void> {
   if (newWorkspaceName) {
     // Execute the create workspace command
     const createCommand = `vtex use ${newWorkspaceName}`;
-    await executeVtexCommandSilently(createCommand, true, true);
+    await executeCommandInTerminal(createCommand);
+
+    // Update the active workspace in cache instead of clearing it
+    const currentAccount = getVtexAccount();
+    if (currentAccount) {
+      await updateActiveWorkspaceInCache(currentAccount, newWorkspaceName);
+    }
 
     vscode.window.showInformationMessage(
       `Created and switched to workspace: ${newWorkspaceName}`
@@ -287,61 +311,33 @@ export async function createNewWorkspace(terminalName: string): Promise<void> {
 export async function deleteWorkspace(workspaceName: string): Promise<void> {
   // Can't delete the current workspace or master workspace
   const currentWorkspace = getVtexWorkspace();
-  
+
   if (workspaceName === "master") {
     vscode.window.showErrorMessage("Cannot delete the master workspace");
     return;
   }
-  
+
   if (workspaceName === currentWorkspace) {
     vscode.window.showErrorMessage(
       "Cannot delete the current workspace. Switch to another workspace first."
     );
     return;
   }
-  
+
   try {
-    // Ask for confirmation
-    const confirmDelete = await vscode.window.showWarningMessage(
-      `Are you sure you want to delete workspace '${workspaceName}'?`,
-      { modal: true },
-      'Yes, delete it',
-      'Cancel'
-    );
-    
-    // If user didn't confirm, exit early
-    if (confirmDelete !== 'Yes, delete it') {
-      return;
-    }
-    
     // Execute the delete workspace command silently
     const deleteCommand = `vtex workspace delete ${workspaceName}`;
-    
-    // Show progress notification
-    await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: `Deleting workspace: ${workspaceName}...`,
-        cancellable: true,
-      },
-      async (progress) => {
-        progress.report({ increment: 50 });
-        
-        const output = await executeVtexCommandSilently(deleteCommand, true, false);
-        
-        if (
-          output.toLowerCase().includes("error") ||
-          output.toLowerCase().includes("failed")
-        ) {
-          throw new Error(output.trim());
-        }
-        
-        progress.report({ increment: 50 });
-        
-        // Show success message
-        vscode.window.showInformationMessage(`Workspace deleted: ${workspaceName}`);
-      }
-    );
+
+    await executeCommandInTerminal(deleteCommand);
+
+    // Update the cache by removing the deleted workspace
+    const currentAccount = getVtexAccount();
+    if (currentAccount) {
+      await removeWorkspaceFromCache(currentAccount, workspaceName);
+    }
+
+    // Show success message
+    vscode.window.showInformationMessage(`Workspace deleted: ${workspaceName}`);
   } catch (error) {
     Logger.error(`Error deleting workspace: ${error}`);
     vscode.window.showErrorMessage(`Error deleting workspace: ${error}`);
@@ -368,7 +364,7 @@ export async function handleWorkspaceStatusBarClick(): Promise<void> {
     await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: "Getting VTEX workspaces...",
+        title: "Vtex workspace",
         cancellable: true,
       },
       async (progress) => {
@@ -383,11 +379,13 @@ export async function handleWorkspaceStatusBarClick(): Promise<void> {
           // Try to get workspaces from cache first
           if (currentAccount) {
             const cachedWorkspaces = await getCachedWorkspaces(currentAccount);
-            
+
             if (cachedWorkspaces && cachedWorkspaces.length > 0) {
               workspaces = cachedWorkspaces;
               fromCache = true;
-              Logger.info(`Using ${workspaces.length} workspaces from cache for account ${currentAccount}`);
+              Logger.info(
+                `Using ${workspaces.length} workspaces from cache for account ${currentAccount}`
+              );
               progress.report({
                 increment: 100,
                 message: `Found ${workspaces.length} workspaces in cache`,
@@ -465,13 +463,15 @@ export async function handleWorkspaceStatusBarClick(): Promise<void> {
             }));
 
           // Add "refresh from VTEX CLI" option at the top if data is from cache
-          const refreshOption = fromCache ? [
-            {
-              label: "$(refresh) Refresh workspaces",
-              description: "Get the latest workspaces from VTEX CLI",
-              action: "refresh"
-            }
-          ] : [];
+          const refreshOption = fromCache
+            ? [
+                {
+                  label: "$(refresh) Refresh workspaces",
+                  description: "Get the latest workspaces from VTEX CLI",
+                  action: "refresh",
+                },
+              ]
+            : [];
 
           // Add additional options
           const additionalOptions = [
@@ -490,8 +490,8 @@ export async function handleWorkspaceStatusBarClick(): Promise<void> {
           // Combine all options
           const quickPickItems = [
             ...refreshOption,
-            ...workspaceItems,
             ...additionalOptions,
+            ...workspaceItems,
             ...(deleteItems.length > 0
               ? [
                   {
@@ -505,8 +505,10 @@ export async function handleWorkspaceStatusBarClick(): Promise<void> {
           ];
 
           // Show the QuickPick with a indicator if showing from cache
-          const title = fromCache 
-            ? `VTEX Workspaces (Current: ${currentWorkspace || "None"}) $(database) From Cache`
+          const title = fromCache
+            ? `VTEX Workspaces (Current: ${
+                currentWorkspace || "None"
+              }) - From Cache`
             : `VTEX Workspaces (Current: ${currentWorkspace || "None"})`;
 
           const selection = await vscode.window.showQuickPick(quickPickItems, {
@@ -536,10 +538,10 @@ export async function handleWorkspaceStatusBarClick(): Promise<void> {
             // Handle workspace deletion
             const workspaceToDelete = (selection as any).workspace;
             await deleteWorkspace(workspaceToDelete);
-            
-            // For deletion operations, we need to clear the cache since a workspace no longer exists
+
+            // For deletion operations, we need to update the cache to remove the deleted workspace
             if (currentAccount) {
-              await clearWorkspaceCache(currentAccount);
+              await removeWorkspaceFromCache(currentAccount, workspaceToDelete);
             }
           } else if ((selection as any).workspace) {
             // Handle workspace selection (switching)
@@ -554,11 +556,14 @@ export async function handleWorkspaceStatusBarClick(): Promise<void> {
 
             // Execute the workspace switch command silently
             const switchCommand = `vtex use ${selectedWorkspace}`;
-            await executeVtexCommandSilently(switchCommand, true, true);
-            
+            await executeCommandInTerminal(switchCommand);
+
             // Update the active workspace in cache instead of clearing it
             if (currentAccount) {
-              await updateActiveWorkspaceInCache(currentAccount, selectedWorkspace);
+              await updateActiveWorkspaceInCache(
+                currentAccount,
+                selectedWorkspace
+              );
             }
           }
         } catch (error) {
