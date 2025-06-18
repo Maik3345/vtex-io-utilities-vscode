@@ -7,7 +7,6 @@ import { Logger } from "../shared";
 // Global variables for status bar elements
 let statusBarItem: vscode.StatusBarItem | undefined;
 let workspaceStatusBarItem: vscode.StatusBarItem | undefined;
-let reloadStatusBarItem: vscode.StatusBarItem | undefined;
 
 // Paths to VTEX configuration files
 const VTEX_SESSION_DIR = path.join(os.homedir(), ".vtex", "session");
@@ -113,12 +112,6 @@ export function getStatusBar(): vscode.StatusBarItem | undefined {
       statusBarItem.hide();
       Logger.info("Hiding status bar because there is no active VTEX account");
     }
-    if (reloadStatusBarItem) {
-      reloadStatusBarItem.hide();
-      Logger.info(
-        "Hiding reload button because there is no active VTEX account"
-      );
-    }
     return undefined;
   }
 
@@ -158,8 +151,7 @@ export function getStatusBar(): vscode.StatusBarItem | undefined {
   statusBarItem.show();
   Logger.info(`Status bar element for VTEX '${displayText}' displayed`);
 
-  // Also show the reload button and workspace status bar
-  getReloadStatusBar();
+  // Also show workspace status bar
   getWorkspaceStatusBar();
 
   return statusBarItem;
@@ -308,48 +300,7 @@ export async function handleStatusBarClick(): Promise<void> {
  * Creates or retrieves the reload element for the status bar.
  * @returns The status bar element to reload VTEX information
  */
-export function getReloadStatusBar(): vscode.StatusBarItem {
-  // Create the status bar element if it doesn't exist
-  if (!reloadStatusBarItem) {
-    Logger.info("Creating reload element for VTEX status bar");
-    reloadStatusBarItem = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Right,
-      108
-    );
-    reloadStatusBarItem.command = "vtex-io-utilities-vscode.reloadVtexInfo";
-    reloadStatusBarItem.tooltip = "Refresh VTEX account information";
-  }
-
-  // Configure the reload icon - ensure no extra space
-  reloadStatusBarItem.text = "$(sync)";
-
-  // Apply compact configuration
-  configureCompactStatusBarItem(reloadStatusBarItem);
-
-  // Show the element in the status bar
-  reloadStatusBarItem.show();
-  Logger.info("VTEX reload element displayed");
-
-  return reloadStatusBarItem;
-}
-
-/**
- * Handles the click event on the status bar reload button.
- * Updates the VTEX information and updates the display.
- */
-export async function handleReloadStatusBar(): Promise<void> {
-  Logger.info("Reloading VTEX information...");
-
-  try {
-    // Update the main status bar (which will also update the workspace status bar)
-    getStatusBar();
-
-    vscode.window.showInformationMessage("VTEX account information updated");
-  } catch (error) {
-    Logger.error(`Error reloading VTEX information: ${error}`);
-    vscode.window.showErrorMessage(`Error updating VTEX information: ${error}`);
-  }
-}
+// Reload functions removed
 
 /**
  * Executes a command in a terminal and updates the status bar after completion
@@ -1014,7 +965,7 @@ export function getWorkspaceStatusBar(): vscode.StatusBarItem | undefined {
     Logger.info("Creating new workspace status bar element for VTEX");
     workspaceStatusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
-      109
+      120
     );
     workspaceStatusBarItem.command =
       "vtex-io-utilities-vscode.clickWorkspaceStatusBar";
@@ -1022,7 +973,7 @@ export function getWorkspaceStatusBar(): vscode.StatusBarItem | undefined {
 
   // Format the text for the workspace status bar
   // Remove extra spaces between icon and text
-  const displayText = `$(workspace)${vtexInfo.workspace}`;
+  const displayText = `${vtexInfo.workspace}`;
 
   // Format the tooltip text
   const tooltipText = `Active VTEX workspace: ${vtexInfo.workspace}\n\nClick to switch workspaces`;

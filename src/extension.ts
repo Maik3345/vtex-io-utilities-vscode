@@ -97,12 +97,7 @@ function registerCommands(context: vscode.ExtensionContext) {
     }
   );
 
-  const reloadVtexInfo = vscode.commands.registerCommand(
-    COMMAND_KEYS.ReloadVtexInfo,
-    () => {
-      commands.handleReloadStatusBar();
-    }
-  );
+  // Reload VTEX Info command removed
 
   const clickWorkspaceStatusBar = vscode.commands.registerCommand(
     COMMAND_KEYS.ClickWorkspaceStatusBar,
@@ -118,7 +113,6 @@ function registerCommands(context: vscode.ExtensionContext) {
     copyDeployCommand,
     showStatusBar,
     clickStatusBar,
-    reloadVtexInfo,
     clickWorkspaceStatusBar
   );
 
