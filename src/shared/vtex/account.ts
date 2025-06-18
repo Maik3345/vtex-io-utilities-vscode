@@ -106,7 +106,7 @@ export async function switchVtexAccount(accountName: string): Promise<void> {
       {
         location: vscode.ProgressLocation.Notification,
         title: `Switching to VTEX account: ${accountName}...`,
-        cancellable: false,
+        cancellable: true,
       },
       async (progress) => {
         progress.report({ increment: 50 });

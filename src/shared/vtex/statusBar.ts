@@ -146,7 +146,7 @@ export async function handleStatusBarClick(): Promise<void> {
 
   // Create separate arrays for each option type
   const accountOptions: string[] = [];
-  const actions: string[] = ["List account information"];
+  const actions: string[] = ["$(add) Add account manually", "List account information"];
 
   // Add available accounts
   availableAccounts.forEach((account) => {
@@ -188,6 +188,26 @@ export async function handleStatusBarClick(): Promise<void> {
 
       // Switch to the selected account
       await switchVtexAccount(accountName);
+    } else if (selection === "$(add) Add account manually") {
+      // Show input box to enter account name manually
+      const accountName = await vscode.window.showInputBox({
+        prompt: "Enter the name of the VTEX account to switch to",
+        placeHolder: "account-name",
+        title: "Add VTEX Account Manually",
+        validateInput: (value) => {
+          // Validate the account name format (modify as needed based on VTEX account naming rules)
+          if (!value || value.trim() === '') {
+            return "Account name cannot be empty";
+          }
+          return null; // No validation error
+        },
+        ignoreFocusOut: true,
+      });
+      
+      if (accountName) {
+        // Switch to the manually entered account
+        await switchVtexAccount(accountName);
+      }
     } else if (selection === "List account information") {
       const command = "vtex ls";
       try {

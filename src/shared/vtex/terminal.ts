@@ -29,7 +29,7 @@ export async function executeVtexCommandSilently(
         {
           location: vscode.ProgressLocation.Notification,
           title: `Running VTEX command...`,
-          cancellable: false,
+          cancellable: true,
         },
         async () => {
           // This promise completes when progressResolve is called

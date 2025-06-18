@@ -322,7 +322,7 @@ export async function deleteWorkspace(workspaceName: string): Promise<void> {
       {
         location: vscode.ProgressLocation.Notification,
         title: `Deleting workspace: ${workspaceName}...`,
-        cancellable: false,
+        cancellable: true,
       },
       async (progress) => {
         progress.report({ increment: 50 });
@@ -369,7 +369,7 @@ export async function handleWorkspaceStatusBarClick(): Promise<void> {
       {
         location: vscode.ProgressLocation.Notification,
         title: "Getting VTEX workspaces...",
-        cancellable: false,
+        cancellable: true,
       },
       async (progress) => {
         try {
