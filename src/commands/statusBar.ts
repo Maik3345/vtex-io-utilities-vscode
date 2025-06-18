@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import { Logger, IconManager } from "../shared";
+import { Logger } from "../shared";
 
 // Variable global para el elemento de la barra de estado
 let statusBarItem: vscode.StatusBarItem | undefined;
@@ -11,6 +11,7 @@ let statusBarItem: vscode.StatusBarItem | undefined;
 const VTEX_SESSION_DIR = path.join(os.homedir(), ".vtex", "session");
 const SESSION_FILE_PATH = path.join(VTEX_SESSION_DIR, "session.json");
 const WORKSPACE_FILE_PATH = path.join(VTEX_SESSION_DIR, "workspace.json");
+const TOKENS_FILE_PATH = path.join(VTEX_SESSION_DIR, "tokens.json");
 
 /**
  * Interfaz para la información VTEX completa
@@ -136,7 +137,7 @@ export function getStatusBar(): vscode.StatusBarItem | undefined {
   } else if (vtexInfo.workspace) {
     // Para otros workspaces: color amarillo/naranja para indicar desarrollo
     statusBarItem.backgroundColor = new vscode.ThemeColor(
-      "statusBarItem.background"
+      "statusBarItem.debugBackground"
     );
   } else {
     // Sin workspace: color neutro
@@ -144,19 +145,19 @@ export function getStatusBar(): vscode.StatusBarItem | undefined {
   }
 
   // Obtener el icono adecuado según el contexto usando nuestra clase IconManager
-  const iconType = IconManager.getVtexIcon(vtexInfo.workspace);
 
   // Formatear el texto para la barra de estado con el icono correspondiente
-  let displayText = `$(vtex-logo) ${vtexInfo.account} ${iconType} `;
+  let displayText = `$(vtex-logo) ${vtexInfo.account}`;
   if (vtexInfo.workspace) {
-    displayText = `$(vtex-logo) ${vtexInfo.account}:${vtexInfo.workspace} ${iconType}`;
+    displayText = `$(vtex-logo) ${vtexInfo.account} - ${vtexInfo.workspace}`;
   }
 
   // Formatear el texto para el tooltip
-  let tooltipText = `Cuenta VTEX activa: ${vtexInfo.account}`;
+  let tooltipText = `Active VTEX account: ${vtexInfo.account}`;
   if (vtexInfo.workspace) {
-    tooltipText = `Cuenta VTEX activa: ${vtexInfo.account}\nWorkspace: ${vtexInfo.workspace}`;
+    tooltipText = `Active VTEX account: ${vtexInfo.account}\nWorkspace: ${vtexInfo.workspace}`;
   }
+  tooltipText += "\n\nClick to switch accounts";
 
   // Actualizar texto y tooltip
   statusBarItem.text = displayText;
@@ -172,18 +173,110 @@ export function getStatusBar(): vscode.StatusBarItem | undefined {
 }
 
 /**
- * Maneja el evento de clic en el elemento de la barra de estado.
+ * Obtiene todas las cuentas VTEX disponibles del archivo tokens.json
+ * @returns Array con los nombres de las cuentas disponibles
  */
-export function handleStatusBarClick(): void {
+function getAvailableVtexAccounts(): string[] {
+  try {
+    Logger.info(`Intentando leer archivo de tokens: ${TOKENS_FILE_PATH}`);
+
+    // Verificar si el archivo existe
+    if (!fs.existsSync(TOKENS_FILE_PATH)) {
+      Logger.info("El archivo tokens.json no existe");
+      return [];
+    }
+
+    // Leer y parsear el archivo
+    const tokensContent = fs.readFileSync(TOKENS_FILE_PATH, "utf-8");
+    const tokensData = JSON.parse(tokensContent);
+
+    // Obtener las claves del objeto que representan las cuentas
+    const accounts = Object.keys(tokensData);
+
+    if (accounts.length === 0) {
+      Logger.info("No se encontraron cuentas en tokens.json");
+    } else {
+      Logger.info(
+        `Se encontraron ${accounts.length} cuentas: ${accounts.join(", ")}`
+      );
+    }
+
+    return accounts;
+  } catch (error) {
+    Logger.error(`Error al leer el archivo de tokens VTEX: ${error}`);
+    return [];
+  }
+}
+
+/**
+ * Maneja el evento de clic en el elemento de la barra de estado.
+ * Muestra un menú contextual con las cuentas disponibles y opciones adicionales.
+ */
+export async function handleStatusBarClick(): Promise<void> {
   const vtexInfo = getVtexInfo();
 
-  if (vtexInfo.account) {
-    let message = `Cuenta VTEX activa: ${vtexInfo.account}`;
-    if (vtexInfo.workspace) {
-      message += `\nWorkspace: ${vtexInfo.workspace}`;
+  // Obtener todas las cuentas disponibles
+  const availableAccounts = getAvailableVtexAccounts();
+
+  // Crear arrays separados para cada tipo de opción
+  const accountOptions: string[] = [];
+
+  // Agregar las cuentas disponibles
+  availableAccounts.forEach((account) => {
+    // Marcar la cuenta activa con un check
+    const isActive = account === vtexInfo.account;
+    const icon = isActive ? "$(check)" : "$(account)";
+    accountOptions.push(`${icon} ${account} ${isActive ? "(current)" : ""}`);
+  });
+
+  // Pone de primero la cuenta activa
+  accountOptions.sort((a, b) => {
+    if (a.startsWith("$(check)")) return -1; // La cuenta activa va primero
+    if (b.startsWith("$(check)")) return 1; // La cuenta activa va primero
+    return a.localeCompare(b); // Ordenar alfabéticamente el resto
+  });
+
+  // Mostrar el menú QuickPick usando async/await
+  const selection = await vscode.window.showQuickPick(accountOptions, {
+    placeHolder: "Choose a VTEX account",
+    matchOnDescription: true,
+    matchOnDetail: true,
+    title: "VTEX Accounts",
+  });
+
+  // Manejar la selección
+  if (selection) {
+    // Verificar si es una cuenta o una acción
+    if (
+      selection.startsWith("$(check)") ||
+      selection.startsWith("$(account)")
+    ) {
+      // Es una cuenta - extraer el nombre de la cuenta
+      const accountName = selection
+        .replace("$(check) ", "")
+        .replace("$(account) ", "");
+
+      try {
+        // Crear un nuevo terminal o usar uno existente
+        const terminal = vscode.window.createTerminal("VTEX Switch Account");
+
+        // Mostrar el terminal
+        terminal.show(true);
+
+        // Ejecutar el comando de cambio de cuenta
+        const switchCommand = `vtex switch ${accountName}`;
+        terminal.sendText(switchCommand);
+
+        // Configurar un temporizador para actualizar el estado después de un tiempo
+        // para dar tiempo a que el comando se complete
+        setTimeout(() => {
+          // Actualizar la barra de estado con la nueva información
+          getStatusBar();
+        }, 2000);
+      } catch (error) {
+        Logger.error(`Error al ejecutar el comando switch: ${error}`);
+        vscode.window.showErrorMessage(`Error al cambiar de cuenta: ${error}`);
+      }
     }
-    vscode.window.showInformationMessage(message);
-  } else {
-    vscode.window.showWarningMessage("No hay cuenta VTEX activa");
   }
 }
