@@ -43,7 +43,10 @@ const extensionConfig = {
   },
   plugins: [
     new CopyWebpackPlugin({
-      patterns: [{ from: "src/diagram.html", to: "diagram.html" }],
+      patterns: [
+        { from: "src/diagram.html", to: "diagram.html" },
+        { from: "resources", to: "resources" }
+      ],
     }),
   ],
   devtool: "nosources-source-map",

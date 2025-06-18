@@ -1,29 +1,48 @@
 {
   "name": "vtex-io-utilities-vscode",
   "displayName": "VTEX IO Utilities for VS Code",
-  "description": "",
   "version": "1.2.0",
-  "author": {
-    "name": "Maik Restrepo"
-  },
-  "publisher": "MaikRestrepo",
-  "engines": {
-    "vscode": "^1.94.0"
-  },
+  "description": "",
+  "categories": [
+    "Extension Packs"
+  ],
   "keywords": [
     "vtex io",
     "vtex io diagram"
-  ],
-  "activationEvents": [],
-  "categories": [
-    "Extension Packs"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Maik3345/vtex-io-utilities-vscode"
   },
+  "author": {
+    "name": "Maik Restrepo"
+  },
+  "publisher": "MaikRestrepo",
   "main": "./dist/extension.js",
+  "files": [
+    "src/diagram.html",
+    "resources/*.woff"
+  ],
+  "scripts": {
+    "publish": "npm run build && vsce publish",
+    "build": "npm run compile && npm run package",
+    "compile": "webpack",
+    "package": "vsce package --out dist",
+    "watch": "webpack --watch",
+    "lint": "eslint src --ext ts",
+    "prepare": "npx husky",
+    "postrelease": "npm run build"
+  },
   "contributes": {
+    "icons": {
+      "vtex-logo": {
+        "description": "VTEX logo icon",
+        "default": {
+          "fontPath": "resources/font.woff",
+          "fontCharacter": "\\e900"
+        }
+      }
+    },
     "commands": [
       {
         "command": "vtex-io-utilities-vscode.createDiagram",
@@ -48,12 +67,17 @@
         "title": "Copy deploy VTEX apps command",
         "category": "VTEX IO Utilities",
         "shortTitle": "Copy deploy Command"
-      }
-    ],
-    "submenus": [
+      },
       {
-        "id": "vtex-io-utilities-vscode.submenu",
-        "label": "Vtex IO Utilities"
+        "command": "vtex-io-utilities-vscode.showStatusBar",
+        "title": "Mostrar mensaje en la barra de estado",
+        "category": "VTEX IO Utilities",
+        "shortTitle": "Show Status Bar"
+      },
+      {
+        "command": "vtex-io-utilities-vscode.clickStatusBar",
+        "title": "Click en el mensaje de la barra de estado",
+        "category": "VTEX IO Utilities"
       }
     ],
     "menus": {
@@ -81,21 +105,23 @@
           "group": "navigation/@1"
         }
       ]
-    }
+    },
+    "submenus": [
+      {
+        "id": "vtex-io-utilities-vscode.submenu",
+        "label": "Vtex IO Utilities"
+      }
+    ]
   },
-  "scripts": {
-    "publish": "npm run build && vsce publish",
-    "build": "npm run compile && npm run package",
-    "compile": "webpack",
-    "package": "vsce package --out dist",
-    "watch": "webpack --watch",
-    "lint": "eslint src --ext ts",
-    "prepare": "npx husky",
-    "postrelease": "npm run build"
+  "activationEvents": [
+    "*"
+  ],
+  "dependencies": {
+    "date-fns": "^4.1.0"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
     "@types/plantuml-encoder": "^1.4.2",
@@ -107,22 +133,19 @@
     "copy-webpack-plugin": "^12.0.2",
     "eslint": "^8.57.0",
     "file-loader": "^6.2.0",
-    "husky": "^9.1.6",
+    "husky": "^9.1.7",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
     "vsce": "^2.15.0",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4"
   },
+  "engines": {
+    "vscode": "^1.94.0"
+  },
   "icon": "img/logo.png",
   "galleryBanner": {
     "color": "#89009a",
     "theme": "dark"
-  },
-  "files": [
-    "src/diagram.html"
-  ],
-  "dependencies": {
-    "date-fns": "^4.1.0"
   }
 }
