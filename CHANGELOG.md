@@ -6,6 +6,14 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.4.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.3.0...v1.4.0) - (2025-06-18)
+
+### Features
+
+* implement workspace cache management functions and update status bar interactions ([b9f79d48](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/b9f79d486b71540e75493ebd7fb9080070bc6213))
+* make progress notifications cancellable for account switching, command execution, and workspace deletion ([af6243dc](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/af6243dcf76960dc1ac59b7a203f5f6d54ac4fc9))
+
+
 ## [1.3.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.2.0...v1.3.0) - (2025-06-18)
 
 ### Features
