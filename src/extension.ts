@@ -1,16 +1,22 @@
 import * as vscode from "vscode";
 import * as commands from "./commands";
 import { COMMAND_KEYS, VTEX_COMMANDS } from "./constants";
-import { Logger, VtexFileWatcher } from "./shared";
+import { getStatusBar, handleStatusBarClick, handleWorkspaceStatusBarClick, Logger } from "./shared";
+import { initializeCache } from "./shared/vtex/cache";
+import { VtexFileWatcher } from "./shared/watchers";
 
 export function activate(context: vscode.ExtensionContext) {
   Logger.info("Activating VTEX IO Utilities extension");
-  
+
+  // Initialize the cache with extension context
+  initializeCache(context);
+  Logger.info("Cache initialized with extension context");
+
   // Create and show status bar item first to ensure it's visible immediately
   try {
     // Use the centralized function to get the status bar item
-    const statusBarItem = commands.getStatusBar();
-    
+    const statusBarItem = getStatusBar();
+
     // Solo agregar a las suscripciones si hay un elemento de barra de estado
     if (statusBarItem) {
       context.subscriptions.push(statusBarItem);
@@ -22,26 +28,25 @@ export function activate(context: vscode.ExtensionContext) {
     // Iniciar la monitorización de archivos VTEX
     const vtexWatcher = new VtexFileWatcher();
     vtexWatcher.startWatching(context, () => {
-      commands.getStatusBar();
+      getStatusBar();
     });
-    
+
     // As a backup, set up an interval to periodically check the files
     // This ensures that even if watchers fail, we'll have updates
     const intervalId = setInterval(() => {
       Logger.info("Periodic check of VTEX files");
-      commands.getStatusBar();
+      getStatusBar();
     }, 30000); // Check every 30 seconds
-    
+
     // Registrar el intervalo para limpiarlo cuando la extensión se desactive
     context.subscriptions.push({ dispose: () => clearInterval(intervalId) });
-    
   } catch (error) {
     Logger.error(`Error displaying status bar item: ${error}`);
   }
-  
+
   // Then register other commands
   registerCommands(context);
-  
+
   Logger.info("VTEX IO Utilities extension activated");
 }
 
@@ -81,11 +86,15 @@ function registerCommands(context: vscode.ExtensionContext) {
     COMMAND_KEYS.ShowStatusBar,
     () => {
       // Use the centralized function to show the status bar
-      const statusBarItem = commands.getStatusBar();
+      const statusBarItem = getStatusBar();
       if (statusBarItem) {
-        vscode.window.showInformationMessage("VTEX account information displayed in the status bar");
+        vscode.window.showInformationMessage(
+          "VTEX account information displayed in the status bar"
+        );
       } else {
-        vscode.window.showWarningMessage("No active VTEX account information found");
+        vscode.window.showWarningMessage(
+          "No active VTEX account information found"
+        );
       }
     }
   );
@@ -93,7 +102,7 @@ function registerCommands(context: vscode.ExtensionContext) {
   const clickStatusBar = vscode.commands.registerCommand(
     COMMAND_KEYS.ClickStatusBar,
     () => {
-      commands.handleStatusBarClick();
+      handleStatusBarClick();
     }
   );
 
@@ -102,7 +111,7 @@ function registerCommands(context: vscode.ExtensionContext) {
   const clickWorkspaceStatusBar = vscode.commands.registerCommand(
     COMMAND_KEYS.ClickWorkspaceStatusBar,
     () => {
-      commands.handleWorkspaceStatusBarClick();
+      handleWorkspaceStatusBarClick();
     }
   );
 

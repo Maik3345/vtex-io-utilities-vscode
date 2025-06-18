@@ -1,3 +1,2 @@
-export * from './copyVtexCommand';
-export * from './createDiagram';
-export * from './statusBar';
+export * from "./copyVtexCommand";
+export * from "./createDiagram";
