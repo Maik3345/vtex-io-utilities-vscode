@@ -5,6 +5,8 @@ export const COMMAND_KEYS = {
   CopyDeployCommand: "vtex-io-utilities-vscode.copyDeployCommand",
   ShowStatusBar: "vtex-io-utilities-vscode.showStatusBar",
   ClickStatusBar: "vtex-io-utilities-vscode.clickStatusBar",
+  ReloadVtexInfo: "vtex-io-utilities-vscode.reloadVtexInfo",
+  ClickWorkspaceStatusBar: "vtex-io-utilities-vscode.clickWorkspaceStatusBar",
 };
 
 export const VTEX_COMMANDS = {
