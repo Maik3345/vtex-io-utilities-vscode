@@ -14,7 +14,9 @@
     "vtex io",
     "vtex io diagram"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "*"
+  ],
   "categories": [
     "Extension Packs"
   ],
@@ -48,6 +50,17 @@
         "title": "Copy deploy VTEX apps command",
         "category": "VTEX IO Utilities",
         "shortTitle": "Copy deploy Command"
+      },
+      {
+        "command": "vtex-io-utilities-vscode.showStatusBar",
+        "title": "Mostrar mensaje en la barra de estado",
+        "category": "VTEX IO Utilities",
+        "shortTitle": "Show Status Bar"
+      },
+      {
+        "command": "vtex-io-utilities-vscode.clickStatusBar",
+        "title": "Click en el mensaje de la barra de estado",
+        "category": "VTEX IO Utilities"
       }
     ],
     "submenus": [
@@ -94,8 +107,8 @@
     "postrelease": "npm run build"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
     "@types/plantuml-encoder": "^1.4.2",
@@ -107,7 +120,7 @@
     "copy-webpack-plugin": "^12.0.2",
     "eslint": "^8.57.0",
     "file-loader": "^6.2.0",
-    "husky": "^9.1.6",
+    "husky": "^9.1.7",
     "ts-loader": "^9.5.1",
     "typescript": "^5.3.3",
     "vsce": "^2.15.0",

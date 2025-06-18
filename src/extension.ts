@@ -2,9 +2,26 @@ import * as vscode from "vscode";
 import * as commands from "./commands";
 import { COMMAND_KEYS, VTEX_COMMANDS } from "./constants";
 import { Logger } from "./shared";
+import { createStatusBar } from "./statusBar";
 
 export function activate(context: vscode.ExtensionContext) {
+  Logger.info("Activando extensión VTEX IO Utilities");
+  
+  // Create and show status bar item first to ensure it's visible immediately
+  try {
+    // Use the direct approach to create status bar item
+    const statusBarItem = createStatusBar();
+    // Push to context subscriptions to ensure proper disposal
+    context.subscriptions.push(statusBarItem);
+    Logger.info("Elemento de la barra de estado creado y agregado a las suscripciones");
+  } catch (error) {
+    Logger.error(`Error al mostrar el elemento de la barra de estado: ${error}`);
+  }
+  
+  // Then register other commands
   registerCommands(context);
+  
+  Logger.info("Extensión VTEX IO Utilities activada");
 }
 
 function registerCommands(context: vscode.ExtensionContext) {
@@ -39,11 +56,29 @@ function registerCommands(context: vscode.ExtensionContext) {
     }
   );
 
+  const showStatusBar = vscode.commands.registerCommand(
+    COMMAND_KEYS.ShowStatusBar,
+    () => {
+      // Guarantee that the status bar item is shown when command is executed
+      const statusBarItem = commands.showStatusBarCommand();
+      vscode.window.showInformationMessage("Elemento 'Hola mundo' mostrado en la barra de estado");
+    }
+  );
+
+  const clickStatusBar = vscode.commands.registerCommand(
+    COMMAND_KEYS.ClickStatusBar,
+    () => {
+      vscode.window.showInformationMessage('¡Has hecho clic en "Hola mundo"!');
+    }
+  );
+
   context.subscriptions.push(
     createDiagram,
     createDiagramContext,
     copyInstallCommand,
-    copyDeployCommand
+    copyDeployCommand,
+    showStatusBar,
+    clickStatusBar
   );
 
   Logger.info("VTEX IO Utilities is now active!");

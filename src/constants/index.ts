@@ -3,6 +3,8 @@ export const COMMAND_KEYS = {
   CreateDiagramFromContext: "vtex-io-utilities-vscode.createDiagramFromContext",
   CopyInstallCommand: "vtex-io-utilities-vscode.copyInstallCommand",
   CopyDeployCommand: "vtex-io-utilities-vscode.copyDeployCommand",
+  ShowStatusBar: "vtex-io-utilities-vscode.showStatusBar",
+  ClickStatusBar: "vtex-io-utilities-vscode.clickStatusBar",
 };
 
 export const VTEX_COMMANDS = {
