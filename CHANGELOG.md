@@ -6,12 +6,20 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-## [1.4.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.3.0...v1.4.0) - (2025-06-18)
+## [1.4.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.3.0...v1.4.0) - (2025-06-23)
 
 ### Features
 
 * implement workspace cache management functions and update status bar interactions ([b9f79d48](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/b9f79d486b71540e75493ebd7fb9080070bc6213))
 * make progress notifications cancellable for account switching, command execution, and workspace deletion ([af6243dc](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/af6243dcf76960dc1ac59b7a203f5f6d54ac4fc9))
+* improve workspace cache system with persistent storage using VS Code extension context ([new-commit-id](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/))
+* add manual account entry option in account switching menu ([new-commit-id](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/))
+* optimize file watchers to better detect external changes to VTEX workspace files ([new-commit-id](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/))
+
+### Bug Fixes
+
+* fix workspace cache update when switching workspaces to avoid unnecessary cache clearing ([new-commit-id](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/))
+* ensure workspace file reading bypasses system cache for better real-time data ([new-commit-id](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/))
 
 
 ## [1.3.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.2.0...v1.3.0) - (2025-06-18)
