@@ -39,10 +39,10 @@ jobs:
         run: npm install -g @vscode/vsce
 
       - name: Package extension
-        run: yes | vsce package
+        run: yes | vsce package --allow-star-activation
 
       - name: Publish extension
-        run: yes | vsce publish --pat ${{ secrets.VSCE_TOKEN }}
+        run: yes | vsce publish --allow-star-activation --pat ${{ secrets.VSCE_TOKEN }}
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
 
