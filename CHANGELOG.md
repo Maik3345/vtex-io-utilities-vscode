@@ -6,6 +6,29 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.5.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.4.0...v1.5.0) - (2025-08-11)
+
+### Features
+
+* implement code changes to enhance functionality and improve performance ([7c3d7e63](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/7c3d7e630c8dfcc00742116b0150ee6ce6311307))
+* update publish workflow to allow star activation and remove .vscodeignore ([3b626c0e](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/3b626c0e5ba416c5abcc204168c7c5caa6f3330e))
+* add comprehensive documentation and workflows for vs code extension development ([1e82e2b7](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/1e82e2b761607158ebcb9980802fdd395062f049))
+
+### Bug Fixes
+
+* add confirmation to build, package, and publish steps in workflow ([f34abe5e](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/f34abe5eb08f599af7add001df51632b0e3ee166))
+
+### Miscellaneous Chores
+
+* add license.md and img to package files ([3f92602f](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/3f92602f91a4992fda0d97b970f6ac35d813ecfe))
+* update build validation workflow to remove main branch references ([45518dc8](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/45518dc8c9f45ffb99cf1644c688f4a6c2ebbcc6))
+* update version to 1.4.0 in package-lock.json ([06d96eaf](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/06d96eaf971753beec8111f1afbe7c65f2557db7))
+
+### Documentation
+
+* update changelog and readme with status bar information ([4a2ed075](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/4a2ed075a546a89d6f1122e14a6114d8b50fdab7))
+
+
 ## [1.4.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.3.0...v1.4.0) - (2025-06-23)
 
 ### Features
