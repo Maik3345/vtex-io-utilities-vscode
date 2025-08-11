@@ -33,16 +33,16 @@ jobs:
         run: projex git release stable --yes --no-deploy --no-push --no-check-release --no-tag
 
       - name: Compile extension
-        run: npm run build
+        run: yes | npm run build
 
       - name: Install VSCE
         run: npm install -g @vscode/vsce
 
       - name: Package extension
-        run: vsce package
+        run: yes | vsce package
 
       - name: Publish extension
-        run: vsce publish --pat ${{ secrets.VSCE_TOKEN }}
+        run: yes | vsce publish --pat ${{ secrets.VSCE_TOKEN }}
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
 
