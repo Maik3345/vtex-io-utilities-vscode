@@ -20,6 +20,8 @@
   "publisher": "MaikRestrepo",
   "main": "./dist/extension.js",
   "files": [
+    "LICENSE.md",
+    "img",
     "dist",
     "src/diagram.html",
     "resources/*.woff"
