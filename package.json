@@ -20,6 +20,7 @@
   "publisher": "MaikRestrepo",
   "main": "./dist/extension.js",
   "files": [
+    "dist",
     "src/diagram.html",
     "resources/*.woff"
   ],
