@@ -46,13 +46,10 @@ jobs:
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
 
-      - name: Set git user from last commit
-        run: |
-          git config --global user.name "$(git log -1 --pretty=format:'%an')"
-          git config --global user.email "$(git log -1 --pretty=format:'%ae')"
-
       - name: Reset changes
         run: git reset --hard HEAD
 
-      - name: Release stable and push
-        run: projex git release stable --yes
+      - name: 🚀 Projex Release
+        uses: Maik3345/projex-github-actions/.github/actions/projex-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

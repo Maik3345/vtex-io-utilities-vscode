@@ -19,6 +19,13 @@ jobs:
         with:
           node-version: "20"
 
+      - name: "🏷️ Sincronizar etiquetas del Pull Request"
+        uses: Maik3345/projex-github-actions/src/pr-label-action@v1
+        with:
+          pr_number: ${{ github.event.pull_request.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+
       - name: Install dependencies
         run: npm ci
 
