@@ -1,9 +1,14 @@
 name: Build Validation
 
 on:
-  push:
+  pull_request:
     branches:
+      - main
       - master
+      - develop
+      - feature/**
+      - hotfix/**
+      - release/**
 
 jobs:
   build:
