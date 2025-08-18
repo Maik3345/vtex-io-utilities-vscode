@@ -6,6 +6,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.6.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.5.0...v1.6.0) - (2025-08-18)
+
+### Features
+
+* **ci**: enhance pr label sync and streamline release process ([#4](https://github.com/Maik3345/vtex-io-utilities-vscode/pull/4)) ([43feec02](https://github.com/Maik3345/vtex-io-utilities-vscode/commit/43feec02c768a7d92b1a4c6b8c3761d23a64a545))
+
+
 ## [1.5.0](https://github.com/Maik3345/vtex-io-utilities-vscode/compare/v1.4.0...v1.5.0) - (2025-08-11)
 
 ### Features
